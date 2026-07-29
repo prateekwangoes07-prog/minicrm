@@ -11,6 +11,16 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Dev target for local development
+FROM base AS dev
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+ENV PORT=3000
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
+
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
