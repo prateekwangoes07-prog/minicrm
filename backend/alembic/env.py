@@ -17,10 +17,8 @@ if config.config_file_name is not None:
 
 # Import settings and metadata for autogenerate support
 from app.core.config import settings
-# Import base model metadata here when defined, e.g.:
-# from app.models.base import Base
-# target_metadata = Base.metadata
-target_metadata = None
+from app.models import Base
+target_metadata = Base.metadata
 
 # Dynamically set database URL from pydantic config
 config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
