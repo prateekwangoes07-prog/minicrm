@@ -1,7 +1,7 @@
 import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import pool
+from sqlalchemy import Connection, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
@@ -18,9 +18,11 @@ if config.config_file_name is not None:
 # Import settings and metadata for autogenerate support
 from app.core.config import settings
 from app.models import Base
+
 target_metadata = Base.metadata
 
 # Dynamically set database URL from pydantic config
+# SQLALCHEMY_DATABASE_URI is always a non-empty str (guaranteed by the validator)
 config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
 
 
@@ -48,7 +50,7 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def do_run_migrations(connection):
+def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():

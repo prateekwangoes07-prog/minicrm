@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, String, Text, UUID as SqlalchemyUUID, func
@@ -34,7 +34,7 @@ class Company(Base):
     is_active: Mapped[bool] = mapped_column(
         Boolean, default=True, server_default="true", nullable=False
     )
-    
+
     # Timezone-aware timestamps
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -48,8 +48,8 @@ class Company(Base):
         nullable=False,
     )
 
-    # Relationships
-    users: Mapped[List["User"]] = relationship(
+    # Relationships — use built-in list[] instead of deprecated typing.List[]
+    users: Mapped[list["User"]] = relationship(
         "User",
         back_populates="company",
     )

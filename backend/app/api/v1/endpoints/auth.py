@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.dependencies.user import get_user_service
 from app.exceptions.user import EmailAlreadyExistsException
+from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.services.user import UserService
 
@@ -18,7 +19,7 @@ router = APIRouter()
 async def signup(
     user_in: UserCreate,
     user_service: UserService = Depends(get_user_service),
-) -> UserResponse:
+) -> User:
     """
     User registration endpoint.
     """
