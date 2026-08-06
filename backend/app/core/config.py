@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "MiniCRM"
 
+    # JWT Configuration
+    SECRET_KEY: str = "supersecretkeydefaultforlocaldev"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
     # CORS Origins
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
