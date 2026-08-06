@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Union
+from typing import Any
 from jose import jwt, JWTError
 from app.core.config import settings
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+def create_access_token(subject: Any, expires_delta: timedelta | None = None) -> str:
     """
     Generate a JWT access token for the given subject.
     """
@@ -19,7 +19,7 @@ def create_access_token(subject: Union[str, Any], expires_delta: timedelta = Non
     return encoded_jwt
 
 
-def verify_access_token(token: str) -> Union[str, None]:
+def verify_access_token(token: str) -> str | None:
     """
     Verify the JWT token and return the subject if valid, else None.
     """
