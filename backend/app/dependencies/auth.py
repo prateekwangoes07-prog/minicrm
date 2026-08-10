@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +15,7 @@ from app.repositories.auth import AuthRepository
 from app.services.auth import AuthService
 
 # Points to the login endpoint so Swagger UI knows where to obtain a token.
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 # Shared exception for all authentication failures.  Using a single,
 # generic message avoids leaking whether a user account exists.
@@ -42,33 +42,24 @@ def get_auth_service(
     return AuthService(auth_repo)
 
 
-def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+def get_current_user_id(
+    request: Request,
+    token: str | None = Depends(oauth2_scheme),
+) -> str:
     """
-    FastAPI dependency that authenticates a request via Bearer JWT.
-
-    Reads the ``Authorization: Bearer <token>`` header, verifies the token
-    signature and expiry using :func:`~app.core.jwt.verify_access_token`, and
-    returns the **subject** (user ID) embedded in the token.
-
-    No database query is performed — this dependency is intentionally
-    lightweight so it can be composed by higher-level dependencies that need
-    to load or authorise a full user object.
-
-    Args:
-        token: Raw JWT extracted automatically by ``OAuth2PasswordBearer``.
-
-    Returns:
-        The ``sub`` claim from the verified token (a stringified user ID).
-
-    Raises:
-        HTTPException: 401 Unauthorized if the token is missing, expired,
-            or otherwise invalid.
+    FastAPI dependency that authenticates a request via Bearer JWT or Cookie.
     """
-    subject = verify_access_token(token)
+    cookie_token = request.cookies.get("access_token")
+    final_token = cookie_token or token
+    if not final_token:
+        raise credentials_exception
+
+    subject = verify_access_token(final_token)
     if subject is None:
         raise credentials_exception
 
     return subject
+
 
 
 async def get_current_user(
