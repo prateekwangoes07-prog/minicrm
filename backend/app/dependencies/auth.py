@@ -99,25 +99,24 @@ async def get_current_user(
     return user
 
 
-def require_admin(user: User = Depends(get_current_user)) -> User:
+def require_role(*roles: str):
+    """
+    FastAPI dependency factory that restricts route access to users with specific roles.
+    """
+    def dependency(user: User = Depends(get_current_user)) -> User:
+        if user.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not enough permissions",
+            )
+        return user
+    return dependency
+
+
+def require_admin(user: User = Depends(require_role("admin"))) -> User:
     """
     FastAPI dependency that restricts route access to administrative users.
-
-    Checks the authenticated user's role and ensures it is "admin".
-
-    Args:
-        user: The authenticated User object injected by get_current_user.
-
-    Returns:
-        The User object if the user is an admin.
-
-    Raises:
-        HTTPException: 403 Forbidden if the user's role is not "admin".
     """
-    if user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions",
-        )
     return user
+
 
